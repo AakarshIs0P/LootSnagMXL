@@ -22,6 +22,7 @@ Everything it pulls from is a free/public API — no paid subscriptions needed. 
 
 ---
 <img src="./assets/banner.png" alt="LootSnag Banner" />
+
 ## What it does
 
 - Posts alerts when games go free (Epic weekly drops, Steam free weekends)
