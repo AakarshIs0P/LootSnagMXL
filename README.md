@@ -9,8 +9,8 @@
   [![Invite](https://img.shields.io/badge/invite%20to%20your%20server-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/oauth2/authorize?client_id=1508171200289968178&permissions=8&integration_type=0&scope=bot+applications.commands)
 
   ![Discord.js](https://img.shields.io/badge/discord.js-v14.16-5865F2?style=flat-square&logo=discord&logoColor=white)
-  ![Node.js](https://img.shields.io/badge/node-18%2B-339933?style=flat-square&logo=node.js&logoColor=white)
-  ![MariaDB](https://img.shields.io/badge/MariaDB-003545?style=flat-square&logo=mariadb&logoColor=white)
+  ![Node.js](https://img.shields.io/badge/node-22%2B-339933?style=flat-square&logo=node.js&logoColor=white)
+  ![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat-square&logo=mongodb&logoColor=white)
   ![License](https://img.shields.io/badge/license-source%20available-lightgrey?style=flat-square)
 </div>
 
@@ -25,7 +25,7 @@ Everything it pulls from is a free/public API — no paid subscriptions needed. 
 
 ## What it does
 
-- Posts alerts when games go free (Epic weekly drops, Steam free weekends)
+- Posts alerts when games go free (Epic weekly drops, Steam free-to-keep promos)
 - Sends deal alerts when games hit your configured discount threshold (default 80%+)
 - Per-user wishlist — add games you want, get a DM or channel ping when they go on sale
 - `/search` to look up current prices across all stores for any game
@@ -40,7 +40,7 @@ Everything it pulls from is a free/public API — no paid subscriptions needed. 
 
 | Store | Free game alerts | Deal alerts |
 |---|---|---|
-| Steam | free weekends | ✅ |
+| Steam | free-to-keep promos | ✅ |
 | Epic Games | weekly free claims | ✅ |
 | GOG | — | ✅ |
 | Humble Bundle | — | ✅ |
@@ -70,7 +70,7 @@ Everything it pulls from is a free/public API — no paid subscriptions needed. 
 | `/ping` | Check latency |
 | `/stats` | Bot stats (deals sent, searches, uptime) |
 
-**Owner only** (your Discord user ID set in `OWNER_ID`):
+**Owner only**:
 
 | Command | What it does |
 |---|---|
@@ -83,41 +83,42 @@ Everything it pulls from is a free/public API — no paid subscriptions needed. 
 
 ---
 
+
 ## Folder layout
 
 ```
 LootSnag/
-├── index.js                    # Entry point
-├── deploy-commands.js          # Manual deploy script (now redundant)
+├── index.js
+├── deploy-commands.js
 ├── package.json
-├── schema.sql
 ├── .env.example
+├── .gitignore
 ├── assets/
 │   └── logo.png
 └── src/
-    ├── commands/               # 10 slash commands
-    │   ├── channels.js         # /channels set|view
-    │   ├── currency.js         # /currency
-    │   ├── deals.js            # /deals
-    │   ├── freegames.js        # /freegames
-    │   ├── owner.js            # /owner (owner-only)
-    │   ├── ping.js             # /ping
-    │   ├── search.js           # /search
-    │   ├── settings.js         # /settings view|threshold|alertmethod
-    │   ├── stats.js            # /stats
-    │   ├── stores.js           # /stores
-    │   └── wishlist.js         # /wishlist add|remove|list
+    ├── commands/
+    │   ├── channels.js
+    │   ├── currency.js
+    │   ├── deals.js
+    │   ├── freegames.js
+    │   ├── owner.js
+    │   ├── ping.js
+    │   ├── search.js
+    │   ├── settings.js
+    │   ├── stats.js
+    │   ├── stores.js
+    │   └── wishlist.js
     ├── config/
     │   ├── colors.js
-    │   ├── constants.js        # CRON_SCHEDULES, CACHE_TTL, LIMITS, DEFAULT
+    │   ├── constants.js
     │   └── emojis.js
     ├── cron/
-    │   ├── cleanup.js          # Daily cleanup at 3am
-    │   ├── deals.js            # Every 4h
-    │   ├── freeGames.js        # Every 2h
-    │   └── wishlist.js         # Every 6h
+    │   ├── cleanup.js
+    │   ├── deals.js
+    │   ├── freeGames.js
+    │   └── wishlist.js
     ├── database/
-    │   ├── connection.js       # MariaDB pool
+    │   ├── connection.js
     │   └── models/
     │       ├── deals.js
     │       ├── guild.js
@@ -147,6 +148,10 @@ LootSnag/
     │   └── steam.js
     └── utils/
         ├── cache.js
+        ├── cv2.js
+        ├── formatter.js
+        ├── logger.js
+        └── rateLimiter.js
 ```
 
 ---
