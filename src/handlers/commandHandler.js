@@ -7,7 +7,10 @@ import 'dotenv/config';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-
+/**
+ * Loads all command modules into client.commands (in-memory map).
+ * Does NOT register with Discord — call deployCommands() for that.
+ */
 export async function loadCommands(client) {
   client.commands = client.commands || new Map();
   client.commands.clear();
@@ -31,7 +34,10 @@ export async function loadCommands(client) {
   logger.info(`${client.commands.size} commands loaded into memory`);
 }
 
-
+/**
+ * Registers all loaded commands with Discord globally via REST.
+ * Called automatically from the ready event — no manual deploy step needed.
+ */
 export async function deployCommands(client) {
   if (!client.commands?.size) {
     logger.warn('deployCommands called but no commands are loaded');

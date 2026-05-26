@@ -1,5 +1,6 @@
 import { Routes } from 'discord.js';
 import { CV2_FLAG } from '../config/constants.js';
+import { EmojiObj } from '../config/emojis.js';
 import logger from './logger.js';
 
 export async function sendCV2(client, channelId, payload) {
@@ -83,18 +84,26 @@ export function actionRow(...buttons) {
   return { type: 1, components: buttons };
 }
 
-export function linkButton(label, url) {
-  return { type: 2, style: 5, label, url };
+export function linkButton(label, url, emojiKey = null) {
+  const btn = { type: 2, style: 5, label, url };
+  if (emojiKey && EmojiObj[emojiKey]) btn.emoji = EmojiObj[emojiKey];
+  return btn;
 }
 
-export function secondaryButton(label, customId) {
-  return { type: 2, style: 2, label, custom_id: customId };
+export function secondaryButton(label, customId, emojiKey = null) {
+  const btn = { type: 2, style: 2, label, custom_id: customId };
+  if (emojiKey && EmojiObj[emojiKey]) btn.emoji = EmojiObj[emojiKey];
+  return btn;
 }
 
-export function dangerButton(label, customId) {
-  return { type: 2, style: 4, label, custom_id: customId };
+export function dangerButton(label, customId, emojiKey = null) {
+  const btn = { type: 2, style: 4, label, custom_id: customId };
+  if (emojiKey && EmojiObj[emojiKey]) btn.emoji = EmojiObj[emojiKey];
+  return btn;
 }
 
-export function primaryButton(label, customId) {
-  return { type: 2, style: 1, label, custom_id: customId };
+export function primaryButton(label, customId, emojiKey = null) {
+  const btn = { type: 2, style: 1, label, custom_id: customId };
+  if (emojiKey && EmojiObj[emojiKey]) btn.emoji = EmojiObj[emojiKey];
+  return btn;
 }

@@ -1,13 +1,17 @@
 import { LIMITS } from '../config/constants.js';
 
 class RateLimiter {
-  constructor(requestsPerSecond = 2) {
+  constructor(requestsPerSecond = 2, maxQueue = 100) {
     this.interval = 1000 / requestsPerSecond;
+    this.maxQueue = maxQueue;
     this.queue    = [];
     this.running  = false;
   }
 
   async add(fn) {
+    if (this.queue.length >= this.maxQueue) {
+      throw new Error('Rate limiter queue full');
+    }
     return new Promise((resolve, reject) => {
       this.queue.push({ fn, resolve, reject });
       if (!this.running) this.run();

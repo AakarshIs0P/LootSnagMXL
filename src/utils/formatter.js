@@ -45,6 +45,22 @@ export function safeCustomId(prefix, id) {
   return `${prefix}_${safe}`;
 }
 
+export function buildWishlistId(prefix, gameId, title) {
+  const safeId    = String(gameId).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 45);
+  const safeTitle = String(title || '').replace(/:/g, '').slice(0, 47);
+  return `${prefix}_${safeId}:${safeTitle}`;
+}
+
+export function parseWishlistId(customId) {
+  const withoutPrefix = customId.replace(/^wl_(add|rm)_/, '');
+  const colonIdx      = withoutPrefix.indexOf(':');
+  if (colonIdx === -1) return { gameId: withoutPrefix, title: null };
+  return {
+    gameId: withoutPrefix.slice(0, colonIdx),
+    title:  withoutPrefix.slice(colonIdx + 1) || null,
+  };
+}
+
 export function formatTimestamp(date) {
   return `<t:${Math.floor(new Date(date).getTime() / 1000)}:R>`;
 }

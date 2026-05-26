@@ -1,3 +1,6 @@
+// Dashboard-ready route stubs
+// Attach these to an Express app when building the dashboard
+
 export function registerRoutes(app, client) {
   app.get('/api/status', (req, res) => {
     res.json({

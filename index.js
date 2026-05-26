@@ -2,7 +2,8 @@ import 'dotenv/config';
 import { Client, GatewayIntentBits, Partials } from 'discord.js';
 import { loadCommands } from './src/handlers/commandHandler.js';
 import { loadEvents } from './src/handlers/eventHandler.js';
-import { testConnection } from './src/database/connection.js';
+import { connectDB } from './src/database/connection.js';
+import { initStats } from './src/database/models/deals.js';
 import logger from './src/utils/logger.js';
 
 const client = new Client({
@@ -18,15 +19,16 @@ async function main() {
   logger.info('LootSnag v1.0.0 starting...');
 
   try {
-    await testConnection();
+    await connectDB();
+    await initStats();
     logger.db('Database connected');
   } catch (err) {
-    logger.error('Failed to connect to database. Check DB credentials.', err);
+    logger.error('Failed to connect to database. Check MONGODB_URI.', err);
     process.exit(1);
   }
 
   await loadEvents(client);
-  await loadCommands(client); 
+  await loadCommands(client);
 
   await client.login(process.env.DISCORD_TOKEN);
 }

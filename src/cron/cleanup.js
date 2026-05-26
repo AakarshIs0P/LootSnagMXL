@@ -1,5 +1,5 @@
-import { cleanupExpired } from '../database/models/deals.js';
-import { query } from '../database/connection.js';
+import { getExpiredDealIds, cleanupExpired } from '../database/models/deals.js';
+import { deleteMessageMapsByDealIds, deleteOldWishlistAlerts } from '../database/models/messages.js';
 import { cache } from '../utils/cache.js';
 import logger from '../utils/logger.js';
 
@@ -7,19 +7,16 @@ export async function cleanupStaleData() {
   logger.cron('Cleanup started');
 
   try {
+    const expiredIds = await getExpiredDealIds();
+
+    if (expiredIds.length > 0) {
+      await deleteMessageMapsByDealIds(expiredIds);
+    }
+
     await cleanupExpired();
 
-    await query(
-      `DELETE FROM wishlist_alerts WHERE sent_at < DATE_SUB(NOW(), INTERVAL 30 DAY)`
-    );
-
-    await query(
-      `DELETE FROM message_map
-       WHERE deal_id IN (
-         SELECT deal_id FROM sent_deals
-         WHERE expires_at IS NOT NULL AND expires_at < DATE_SUB(NOW(), INTERVAL 1 DAY)
-       )`
-    );
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    await deleteOldWishlistAlerts(thirtyDaysAgo);
 
     cache.cleanup();
 

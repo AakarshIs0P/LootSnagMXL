@@ -2,7 +2,7 @@ import axios from 'axios';
 import { cache } from '../utils/cache.js';
 import { CACHE_TTL, LIMITS } from '../config/constants.js';
 import { withRetry } from '../utils/rateLimiter.js';
-import { query } from '../database/connection.js';
+import { getStoredExchangeRate, saveExchangeRate } from '../database/models/deals.js';
 import logger from '../utils/logger.js';
 
 const CACHE_KEY = 'exchange_rate_USD_INR';
@@ -19,18 +19,18 @@ export async function getUSDtoINR() {
     });
 
     cache.set(CACHE_KEY, rate, CACHE_TTL.EXCHANGE_RATE);
-
-    await query(
-      `INSERT INTO exchange_rates (base_currency, target_currency, rate)
-       VALUES ('USD', 'INR', ?)
-       ON DUPLICATE KEY UPDATE rate = ?, updated_at = NOW()`,
-      [rate, rate]
-    ).catch(() => {});
-
+    await saveExchangeRate('USD', 'INR', rate).catch(() => {});
     logger.api(`Exchange rate fetched: 1 USD = ${rate} INR`);
     return rate;
   } catch (err) {
-    logger.error('Failed to fetch exchange rate, using fallback', err.message);
+    logger.error('Failed to fetch exchange rate, using stored fallback', err.message);
+
+    const stored = await getStoredExchangeRate('USD', 'INR').catch(() => null);
+    if (stored) {
+      cache.set(CACHE_KEY, stored, CACHE_TTL.EXCHANGE_RATE);
+      return stored;
+    }
+
     return 84;
   }
 }

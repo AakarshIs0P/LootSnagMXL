@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { getEpicFreeGames } from '../services/epic.js';
 import { getFreeDeals } from '../services/cheapshark.js';
+import { getSteamFreePromos } from '../services/steam.js';
 import { getUSDtoINR } from '../services/exchangeRate.js';
 import { buildFreeGameMessage, buildUpcomingFreeGameMessage } from '../embeds/freeGameEmbed.js';
 import { getUserCurrency } from '../database/models/user.js';
@@ -21,15 +22,22 @@ export async function execute(interaction) {
   const exchangeRate = await getUSDtoINR();
 
   try {
-    const [epicData, csDeals] = await Promise.all([
+    const [epicData, csDeals, steamPromos] = await Promise.all([
       getEpicFreeGames(),
       getFreeDeals(),
+      getSteamFreePromos(),
     ]);
 
-    const allFree = [...epicData.current, ...csDeals.slice(0, 5)];
+    const seen    = new Set();
+    const allFree = [...steamPromos, ...epicData.current, ...csDeals].filter(game => {
+      const key = game.title.toLowerCase().trim();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
 
     if (allFree.length === 0 && epicData.upcoming.length === 0) {
-      const payload = {
+      return followUpCV2(interaction, {
         components: [
           container(
             Colors.info,
@@ -38,19 +46,18 @@ export async function execute(interaction) {
             textDisplay('No free games found right now.\nCheck back soon or set up auto-alerts with `/channels`.')
           ),
         ],
-      };
-      return followUpCV2(interaction, payload);
+      });
     }
 
-    const first = allFree[0] || epicData.upcoming[0];
+    const first      = allFree[0] || epicData.upcoming[0];
     const isUpcoming = !allFree.length;
-    const payload = isUpcoming
+    const payload    = isUpcoming
       ? buildUpcomingFreeGameMessage(first, currency, exchangeRate)
       : buildFreeGameMessage(first, currency, exchangeRate);
 
     await followUpCV2(interaction, payload);
 
-    for (const game of allFree.slice(1, 4)) {
+    for (const game of allFree.slice(1, 8)) {
       const p = buildFreeGameMessage(game, currency, exchangeRate);
       await interaction.followUp({ ...p, flags: 1 << 15 }).catch(() => {});
     }

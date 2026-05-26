@@ -15,7 +15,7 @@ export async function execute(client) {
   logger.info(`Logged in as ${client.user.tag}`);
   logger.info(`Serving ${client.guilds.cache.size} guilds`);
 
- 
+  // Verify DB is still alive
   try {
     await testConnection();
     logger.db('Database connection verified');
@@ -23,6 +23,7 @@ export async function execute(client) {
     logger.error('Database connection failed on ready', err);
   }
 
+  // Auto-register all slash commands globally — no manual deploy step needed
   try {
     await deployCommands(client);
   } catch (err) {

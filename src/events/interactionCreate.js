@@ -4,6 +4,7 @@ import {
 } from '../database/models/wishlist.js';
 import { ensureUser } from '../database/models/user.js';
 import { incrementStat } from '../database/models/deals.js';
+import { parseWishlistId } from '../utils/formatter.js';
 import { container, textDisplay, followUpCV2 } from '../utils/cv2.js';
 import Colors from '../config/colors.js';
 import E from '../config/emojis.js';
@@ -35,20 +36,20 @@ export async function execute(interaction) {
     const { customId } = interaction;
 
     if (customId.startsWith('wl_add_')) {
-      const gameId = customId.slice(7);
-      await handleWishlistAdd(interaction, gameId);
+      const { gameId, title } = parseWishlistId(customId);
+      await handleWishlistAdd(interaction, gameId, title);
       return;
     }
 
     if (customId.startsWith('wl_rm_')) {
-      const gameId = customId.slice(6);
-      await handleWishlistRemove(interaction, gameId);
+      const { gameId, title } = parseWishlistId(customId);
+      await handleWishlistRemove(interaction, gameId, title);
       return;
     }
   }
 }
 
-async function handleWishlistAdd(interaction, gameId) {
+async function handleWishlistAdd(interaction, gameId, title) {
   await interaction.deferReply({ ephemeral: true });
   const userId = interaction.user.id;
   await ensureUser(userId);
@@ -59,24 +60,24 @@ async function handleWishlistAdd(interaction, gameId) {
       return interaction.editReply({ content: 'Already in your wishlist.' });
     }
 
-    const title = deriveTitle(gameId);
-    await addToWishlist(userId, gameId, title, null, null);
-    await interaction.editReply({ content: `${E.check} **${title}** added to your wishlist.` });
+    const displayTitle = title || deriveTitle(gameId);
+    await addToWishlist(userId, gameId, displayTitle, null, null);
+    await interaction.editReply({ content: `${E.check} **${displayTitle}** added to your wishlist.` });
   } catch (err) {
     await interaction.editReply({ content: err.message || 'Failed to add to wishlist.' });
   }
 }
 
-async function handleWishlistRemove(interaction, gameId) {
+async function handleWishlistRemove(interaction, gameId, title) {
   await interaction.deferReply({ ephemeral: true });
   const userId = interaction.user.id;
   try {
-    const removed = await removeFromWishlist(userId, gameId);
-    const title = deriveTitle(gameId);
+    const removed      = await removeFromWishlist(userId, gameId);
+    const displayTitle = title || deriveTitle(gameId);
     await interaction.editReply({
       content: removed
-        ? `${E.check} **${title}** removed from wishlist.`
-        : `${E.cross} **${title}** was not in your wishlist.`,
+        ? `${E.check} **${displayTitle}** removed from wishlist.`
+        : `${E.cross} **${displayTitle}** was not in your wishlist.`,
     });
   } catch (err) {
     await interaction.editReply({ content: err.message || 'Failed to remove from wishlist.' });

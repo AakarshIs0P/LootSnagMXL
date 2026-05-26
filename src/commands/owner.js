@@ -112,7 +112,7 @@ export async function execute(interaction) {
   }
 
   if (sub === 'cron') {
-    const job = interaction.options.getString('job');
+    const job    = interaction.options.getString('job');
     const client = interaction.client;
 
     await followUpCV2(interaction, {
@@ -143,13 +143,16 @@ export async function execute(interaction) {
   }
 
   if (sub === 'config') {
+    const uri = process.env.MONGODB_URI;
+    const dbStatus = uri ? `Connected (${uri.split('@')[1]?.split('/')[0] ?? 'Atlas'})` : 'Not configured';
+
     const lines = [
       `**Bot ID:** ${interaction.client.user.id}`,
       `**Owner ID:** ${process.env.OWNER_ID}`,
       `**Log Channel:** ${process.env.LOG_CHANNEL_ID ? `<#${process.env.LOG_CHANNEL_ID}>` : '*Not set*'}`,
       `**Default Threshold:** ${process.env.DEFAULT_DEAL_THRESHOLD ?? 80}%`,
       `**Default Currency:** ${process.env.DEFAULT_CURRENCY ?? 'INR'}`,
-      `**DB:** ${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`,
+      `**DB:** MongoDB — ${dbStatus}`,
       `**RAWG Key:** ${process.env.RAWG_API_KEY ? '*Set*' : '*Not set*'}`,
       `**Node:** ${process.version}`,
     ];

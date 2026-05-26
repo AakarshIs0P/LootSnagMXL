@@ -4,8 +4,9 @@ import { resolveGameImage } from '../services/imageService.js';
 import { getUSDtoINR } from '../services/exchangeRate.js';
 import { buildWishlistAlertMessage } from '../embeds/wishlistEmbed.js';
 import { sendCV2 } from '../utils/cv2.js';
-import { getUsersByGameInWishlist, getUserWishlist } from '../database/models/wishlist.js';
-import { wasWishlistAlertSent, recordWishlistAlert, incrementStat } from '../database/models/messages.js';
+import { getUsersByGameInWishlist } from '../database/models/wishlist.js';
+import { wasWishlistAlertSent, recordWishlistAlert } from '../database/models/messages.js';
+import { incrementStat } from '../database/models/deals.js';
 import { getUser } from '../database/models/user.js';
 import { getGuild } from '../database/models/guild.js';
 import logger from '../utils/logger.js';
@@ -21,15 +22,9 @@ export async function checkWishlists(client) {
       getUSDtoINR(),
     ]);
 
-    const allDeals = [
-      ...freeDeals,
-      ...topDeals,
-      ...epicData.current,
-    ];
+    const allDeals = [...freeDeals, ...topDeals, ...epicData.current];
 
     for (const deal of allDeals) {
-      const normalizedTitle = deal.title.toLowerCase().trim();
-
       const wishlistUsers = await getUsersByGameInWishlist(deal.gameId);
 
       for (const { user_id } of wishlistUsers) {
@@ -60,15 +55,16 @@ export async function checkWishlists(client) {
         }
 
         if (method === 'channel' || method === 'both') {
-          const guilds = await client.guilds.fetch().catch(() => new Map());
-          for (const [guildId] of guilds) {
-            const member = await client.guilds.cache.get(guildId)?.members.fetch(user_id).catch(() => null);
+          const guildEntries = client.guilds.cache;
+          for (const [guildId, discordGuild] of guildEntries) {
+            const member = await discordGuild.members.fetch(user_id).catch(() => null);
             if (!member) continue;
             const guildData = await getGuild(guildId);
             if (!guildData?.wishlist_channel) continue;
             try {
               await sendCV2(client, guildData.wishlist_channel, payload);
               sent = true;
+              break;
             } catch {}
           }
         }

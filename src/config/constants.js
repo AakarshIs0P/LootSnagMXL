@@ -20,6 +20,16 @@ export const STORE_SLUG_MAP = {
   itch:      '28',
 };
 
+export const STORE_SLUG_BY_NAME = {
+  'Steam':         'steam',
+  'GOG':           'gog',
+  'Humble Bundle': 'humble',
+  'Ubisoft':       'ubisoft',
+  'Fanatical':     'fanatical',
+  'Epic Games':    'epic',
+  'itch.io':       'itch',
+};
+
 export const CRON_SCHEDULES = {
   FREE_GAMES: '0 */2 * * *',
   DEALS:      '0 */4 * * *',
