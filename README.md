@@ -158,4 +158,4 @@ LootSnag/
 
 ## License
 [MIT](./LICENSE)
-made by aakarsh2 dc
+made by aakarshis0p
